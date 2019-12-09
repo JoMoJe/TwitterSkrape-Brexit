@@ -1,0 +1,76 @@
+---
+title: 'twitter_EN_Brexit'
+author: "Josephine Møller Jensen"
+date: "9/12/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(rtweet)
+library(tidytext)
+```
+
+```{r}
+EN_brexit_tweets <- search_tweets(q = "#brexit", n = 1000,
+                             lang = "en",
+                             include_rts = FALSE,
+                             na="NULL")
+```
+```{r}
+head(EN_brexit_tweets$text)
+```
+
+```{r}
+EN_brexit_tweets_ttm <- EN_brexit_tweets %>%
+  select(text) %>%
+  unnest_tokens(word,text)
+EN_brexit_tweets_ttm
+```
+
+```{r}
+EN_brexit_tweets_ttm %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(x = "Count",
+       y = "Unique words",
+       title = "Count of unique words found in ENG #Brexit tweets")
+```
+
+```{r}
+stopword <- read_csv2("https://raw.githubusercontent.com/JoMoJe/TwitterSkrape-Brexit/master/Stopwordlist%20m.%20Brexit")
+```
+
+```{r}
+head(stopword)
+```
+
+```{r}
+EN_brexit_tweets_ttm <- EN_brexit_tweets_ttm %>%
+  anti_join(stopword, by="word")
+```
+
+```{r}
+EN_brexit_tweets_ttm %>%
+  count(word, sort = TRUE) %>%
+  top_n(15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(x = "Count",
+       y = "Unique words",
+       title = "Count of unique words found in ENG #Brexit tweets")
+```
+
+
+```{r}
+write.csv(EN_brexit_tweets_ttm, "EN_brexit_tweets.csv", row.names = FALSE)
+```
+
