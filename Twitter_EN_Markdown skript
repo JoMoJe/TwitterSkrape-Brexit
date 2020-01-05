@@ -5,29 +5,33 @@ date: "9/12/2019"
 output: html_document
 ---
 
+Step 1.
 ```{r}
 library(tidyverse)
 library(rtweet)
 library(tidytext)
 ```
 
+Step. 2
 ```{r}
 EN_brexit_tweets <- search_tweets(q = "#brexit", n = 1000,
                              lang = "en",
                              include_rts = FALSE,
                              na="NULL")
-```
-```{r}
+
 head(EN_brexit_tweets$text)
 ```
 
+Step 3.
 ```{r}
 EN_brexit_tweets_ttm <- EN_brexit_tweets %>%
   select(text) %>%
   unnest_tokens(word,text)
+
 EN_brexit_tweets_ttm
 ```
 
+Step 4.
 ```{r}
 EN_brexit_tweets_ttm %>%
   count(word, sort = TRUE) %>%
@@ -42,19 +46,20 @@ EN_brexit_tweets_ttm %>%
        title = "Count of unique words found in ENG #Brexit tweets")
 ```
 
+Step 5.
 ```{r}
-stopword <- read_csv2("https://raw.githubusercontent.com/JoMoJe/TwitterSkrape-Brexit/master/Stopwordlist%20m.%20Brexit")
-```
+stopword <- read_csv2("https://raw.githubusercontent.com/JoMoJe/TwitterSkrape-Brexit/master/EN%20Stopwordlist%20m.%20Brexit")
 
-```{r}
 head(stopword)
 ```
 
+Step 6.
 ```{r}
 EN_brexit_tweets_ttm <- EN_brexit_tweets_ttm %>%
   anti_join(stopword, by="word")
 ```
 
+Step 7.
 ```{r}
 EN_brexit_tweets_ttm %>%
   count(word, sort = TRUE) %>%
@@ -69,7 +74,7 @@ EN_brexit_tweets_ttm %>%
        title = "Count of unique words found in ENG #Brexit tweets")
 ```
 
-
+Step 8.
 ```{r}
 write.csv(EN_brexit_tweets_ttm, "EN_brexit_tweets.csv", row.names = FALSE)
 ```
