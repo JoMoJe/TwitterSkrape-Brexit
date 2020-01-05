@@ -4,6 +4,9 @@ author: "Josephine Møller Jensen"
 date: "9/12/2019"
 output: html_document
 ---
+Step 0. Creating a markdown script
+
+Step 1. Installing and running packages 
 ```{r}
 library(tidyverse)
 library(rtweet)
@@ -12,27 +15,27 @@ library(tidytext)
 
 
 
-
-
-import af tweet
+Step 2. Importing #Brexit tweets from Twitter
 ```{r}
 DK_brexit_tweets <- search_tweets(q = "#brexit", n = 10000,
-                             lang = "da",
-                             include_rts = FALSE,
-                             na="NULL",
-                             timeout = 60 * 60 * 24 * 7)
+                             lang = "da")
 ```
 
+Step 2,1 Checking your messy data
+```{r}
+head(DK_brexit_tweets$text)
+```
+
+Step 3. Unnesting Tokens
 ```{r}
 DK_brexittweets_ttm <- DK_brexit_tweets %>%
   select(text) %>%
   unnest_tokens(word,text)
-```
 
-```{r}
 DK_brexittweets_ttm
 ```
 
+Step 4. First graph plot
 ```{r}
 DK_brexittweets_ttm %>%
   count(word, sort = TRUE) %>%
@@ -48,34 +51,23 @@ DK_brexittweets_ttm %>%
 ```
 
 
+Step 5. Adding a stop-word-list
 ```{r}
-DK_brexittweets_ttm %>%
-  count(word, sort = TRUE) %>%
-  top_n(15) %>%
-  mutate(word = reorder(word, n)) %>%
-  ggplot(aes(x = word, y = n)) +
-  geom_col() +
-  xlab(NULL) +
-  coord_flip() +
-  labs(x = "Count",
-       y = "Unique words",
-       title = "Count of unique words found in DK #Brexit tweets")
-```
+stopord <- read_csv2("https://raw.githubusercontent.com/JoMoJe/TwitterSkrape-Brexit/master/DK%20Stopordsliste%20m.%20Brexit")
 
-```{r}
-stopord <- read_csv2("https://raw.githubusercontent.com/JoMoJe/TwitterSkrape-Brexit/master/Stopordsliste%20m.%20Brexit")
-
-```
-
-```{r}
 head(stopord)
 ```
 
+Step 6. Implementing the stop-word-list with anti_join
 ```{r}
 DK_brexittweets_ttm <- DK_brexittweets_ttm %>%
   anti_join(stopord, by="word")
+
+head(DK_brexittweets_ttm)
 ```
 
+
+Step 7. Second graph plot
 ```{r}
 DK_brexittweets_ttm %>%
   count(word, sort = TRUE) %>%
@@ -90,7 +82,9 @@ DK_brexittweets_ttm %>%
        title = "Count of unique words found in DK #Brexit tweets")
 ```
 
+Step 8 Writeing a CSV file
 ```{r}
-write.csv(DK_brexittweets_ttm, "DK_brexit_tweets.csv", row.names = FALSE)
+write.csv(DK_brexittweets_ttm, "DK_brexit_tweets_5.1.2020.csv", row.names = FALSE)
 ```
 
+Step 9. Do it all over again with the English tweets
